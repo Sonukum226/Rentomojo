@@ -1,13 +1,10 @@
 import React, { useState, useEffect } from "react";
-import TextField from "@mui/material/TextField";
-import Stack from "@mui/material/Stack";
-import Autocomplete from "@mui/material/Autocomplete";
-import { Box } from "@mui/system";
-
+// import TextField from "@mui/material/TextField";
+// import Autocomplete from "@mui/material/Autocomplete";
 import GameListS from "./GameList";
 
 import "./App.css";
-import { Button } from "@mui/material";
+import { Title } from "@mui/icons-material";
 
 function App() {
   const [gamedata, setgamedata] = useState({
@@ -17,6 +14,14 @@ function App() {
     sort: "",
   });
 
+  const [text, setText] = useState("");
+
+  //button text according to sort
+  const [to_sort, set_to_sort] = useState("Sort by Score");
+
+  //gametitle
+
+  // fetch data from api
   useEffect(() => {
     fetch(
       "https://s3-ap-southeast-1.amazonaws.com/he-public-data/gamesarena274f2bf.json"
@@ -27,10 +32,10 @@ function App() {
           apiData: result,
           gamesData: result,
         });
-        // console.log(gamedata);
+
+        console.log(result);
       });
   }, []);
-  console.log(gamedata);
 
   //sort by score
 
@@ -41,24 +46,53 @@ function App() {
         gamesData: games,
         sort: "asc",
       });
+      set_to_sort("High to Low");
     } else if (gamedata.sort === "asc") {
       setgamedata({
         gamesData: gamedata.gamesData.reverse(),
         sort: "desc",
       });
+      set_to_sort("Sort By Score");
     } else {
       setgamedata({
         gamesData: gamedata.gamesData.reverse(),
         sort: "",
       });
+      set_to_sort("Low to High");
     }
+  };
+
+  const onChangeHandler = (text) => {
+    let matches = [];
+
+    if (text.length > 0) {
+      matches = gamedata.gamesData.filter((game) => {
+        const regex = new RegExp(`${text}`, "gi");
+        console.log(regex);
+        console.log("game", game);
+        return game.title.match(regex);
+      });
+    }
+
+    console.log(matches);
+    setText(text);
   };
 
   return (
     <div style={{ marginTop: "80px" }}>
+      <input
+        type="text"
+        onChange={(e) => onChangeHandler(e.target.value)}
+        value={text}
+      />
+
+      <div class="d-grid gap-2 col-6 mx-auto text-center">
+        <button class="btn btn-primary" type="button" onClick={sortbyscore}>
+          {to_sort}
+        </button>
+      </div>
+
       <center>
-        {/* <Autocomplete hintText="Search for a game" /> */}
-        <button onClick={sortbyscore}>Sort by score</button>
         {gamedata.gamesData.map((game, index) => {
           if (index === 0) {
             return false;
@@ -71,7 +105,8 @@ function App() {
 }
 
 export default App;
+
 //compare function sortByScore()
 function scoreCopm(a, b) {
-  return parseInt(a.score, 10) - parseInt(b.score, 10);
+  return parseFloat(a.score, 10) - parseFloat(b.score, 10);
 }
