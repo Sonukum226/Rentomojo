@@ -21,7 +21,7 @@ function GameList({ game }) {
         </li>
         <li class="list-group-item">
           platform:
-          <a href=" ">
+          <a href="#">
             <b>{game.platform}</b>
           </a>
         </li>

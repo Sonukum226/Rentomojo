@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from "react";
-// import TextField from "@mui/material/TextField";
-// import Autocomplete from "@mui/material/Autocomplete";
+
 import GameListS from "./GameList";
 
 import "./App.css";
-import { Title } from "@mui/icons-material";
 
 function App() {
   const [gamedata, setgamedata] = useState({
@@ -28,12 +26,18 @@ function App() {
     )
       .then((res) => res.json())
       .then((result) => {
+        const temp = [];
+
+        for (var i = 1; i < result.length; i++) {
+          temp.push(result[i]);
+        }
+
         setgamedata({
-          apiData: result,
-          gamesData: result,
+          apiData: temp,
+          gamesData: temp,
         });
 
-        console.log(result);
+        // console.log(result);
       });
   }, []);
 
@@ -43,18 +47,21 @@ function App() {
     var games = gamedata.gamesData.sort(scoreCopm);
     if (gamedata.sort === "") {
       setgamedata({
+        ...gamedata,
         gamesData: games,
         sort: "asc",
       });
       set_to_sort("High to Low");
     } else if (gamedata.sort === "asc") {
       setgamedata({
+        ...gamedata,
         gamesData: gamedata.gamesData.reverse(),
         sort: "desc",
       });
       set_to_sort("Sort By Score");
     } else {
       setgamedata({
+        ...gamedata,
         gamesData: gamedata.gamesData.reverse(),
         sort: "",
       });
@@ -66,27 +73,41 @@ function App() {
     let matches = [];
 
     if (text.length > 0) {
-      matches = gamedata.gamesData.filter((game) => {
+      matches = gamedata.apiData.filter((game) => {
         const regex = new RegExp(`${text}`, "gi");
-        console.log(regex);
-        console.log("game", game);
         return game.title.match(regex);
       });
     }
 
     console.log(matches);
+
+    if (matches.length > 0) {
+      setgamedata({ ...gamedata, gamesData: matches, sort: "" });
+    } else if (matches.length === 0) {
+      setgamedata({ ...gamedata, gamesData: gamedata.apiData, sort: "" });
+    }
+
     setText(text);
   };
 
   return (
-    <div style={{ marginTop: "80px" }}>
-      <input
-        type="text"
-        onChange={(e) => onChangeHandler(e.target.value)}
-        value={text}
-      />
+    <div style={{ marginTop: "10px" }}>
+      <div
+        className="d-grid gap-2 col-6 mx-auto text-center"
+        style={{ marginBottom: "30px" }}
+      >
+        <input
+          type="text"
+          class="form-control mr-sm-2"
+          placeholder="Search Game...."
+          aria-label="Recipient's username"
+          aria-describedby="basic-addon2"
+          onChange={(e) => onChangeHandler(e.target.value)}
+          value={text}
+        />
+      </div>
 
-      <div class="d-grid gap-2 col-6 mx-auto text-center">
+      <div class="d-grid gap-2 col-6 mx-auto text-center ">
         <button class="btn btn-primary" type="button" onClick={sortbyscore}>
           {to_sort}
         </button>
@@ -94,9 +115,6 @@ function App() {
 
       <center>
         {gamedata.gamesData.map((game, index) => {
-          if (index === 0) {
-            return false;
-          }
           return <GameListS key={index} game={game} />;
         })}
       </center>
