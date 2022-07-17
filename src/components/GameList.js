@@ -30,7 +30,7 @@ function GameList({ game }) {
         </li>
 
         <li class="list-group-item">
-          editors_choice: <b>{game.editors_choice}</b>
+          editors_choice: <b>{game.editors_choice === "Y" ? "YES" : "NO"}</b>
         </li>
       </ul>
     </div>
